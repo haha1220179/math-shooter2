@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>2D Math-Based Shooting Game</title>
+  <style>
+    body {
+      text-align: center;
+      font-family: sans-serif;
+      background: #f0f0f0;
+    }
+    canvas {
+      border: 1px solid black;
+      margin-top: 20px;
+    }
+    input {
+      width: 60%;
+      padding: 10px;
+      font-size: 16px;
+      margin: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h1>2D Math-Based Shooting Game 🎯</h1>
+  <p>Shooter and target are randomly placed. Enter a function y = f(x) to try and hit the target!</p>
+  <input id="formula" placeholder="Example: -0.01*(x-400)**2 + 300" />
+  <button onclick="shoot()">Shoot!</button>
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const shooter = {
+      x: Math.floor(Math.random() * 700 + 50),
+      y: Math.floor(Math.random() * 500 + 50)
+    };
+
+    let target;
+    do {
+      target = {
+        x: Math.floor(Math.random() * 700 + 50),
+        y: Math.floor(Math.random() * 500 + 50)
+      };
+    } while (target.x === shooter.x && target.y === shooter.y);
+
+    function drawScene() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "green";
+      ctx.beginPath();
+      ctx.arc(shooter.x, shooter.y, 6, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.fillText("Shooter", shooter.x + 8, shooter.y);
+
+      ctx.fillStyle = "red";
+      ctx.beginPath();
+      ctx.arc(target.x, target.y, 6, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.fillText("Target", target.x + 8, target.y);
+    }
+
+    function shoot() {
+      drawScene();
+      const input = document.getElementById("formula").value;
+      ctx.beginPath();
+      ctx.strokeStyle = "blue";
+      let hit = false;
+
+      for (let x = 0; x <= canvas.width; x += 1) {
+        let y;
+        try {
+          y = eval(input.replace(/x/g, x));
+        } catch {
+          alert("Invalid function format");
+          return;
+        }
+
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+
+        if (Math.abs(x - target.x) < 3 && Math.abs(y - target.y) < 3) {
+          hit = true;
+        }
+      }
+      ctx.stroke();
+
+      setTimeout(() => {
+        alert(hit ? "🎯 HIT! Nice shot!" : "❌ MISS! Try again.");
+      }, 100);
+    }
+
+    drawScene();
+  </script>
+</body>
+</html>
